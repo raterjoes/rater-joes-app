@@ -12,6 +12,8 @@ import AddItemScreen from "../screens/AddItemScreen";
 import ContactScreen from "../screens/ContactScreen";
 import ChatBoardScreen from "../screens/ChatBoardScreen";
 import SeasonalScreen from "../screens/SeasonalScreen";
+import AllCategoriesScreen from "../screens/AllCategoriesScreen";
+import CategoryScreen from "../screens/CategoryScreen";
 
 import { useAuth } from "../context/AuthContext";
 import { getDoc, doc } from "firebase/firestore";
@@ -49,10 +51,8 @@ function UserInitialIcon({ navigation }) {
   );
 }
 
-// 🧭 HomeScreen that always resets to ProductList when navigated to
+// ✅ Redirect-only screen to reset to HomeStack
 function HomeScreen({ navigation }) {
-  const Stack = createNativeStackNavigator();
-
   useEffect(() => {
     const timeout = setTimeout(() => {
       navigation.reset({
@@ -63,10 +63,10 @@ function HomeScreen({ navigation }) {
     return () => clearTimeout(timeout);
   }, [navigation]);
 
-  return <MainStack />;
+  return null; // This screen just redirects
 }
 
-// 📦 Main stack with product screens
+// 📦 Main stack with core screens
 function MainStack() {
   return (
     <Stack.Navigator initialRouteName="ProductList">
@@ -83,9 +83,7 @@ function MainStack() {
       <Stack.Screen
         name="Auth"
         component={AuthScreen}
-        options={{
-          headerShown: false, // hides the "HomeStack" banner at the top
-        }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="UserMenu"
@@ -96,6 +94,13 @@ function MainStack() {
         name="AddItem"
         component={AddItemScreen}
         options={{ title: "Add New Product" }}
+      />
+      <Stack.Screen
+        name="Category"
+        component={CategoryScreen}
+        options={({ route }) => ({
+          title: route.params?.category || "Category",
+        })}
       />
     </Stack.Navigator>
   );
@@ -119,13 +124,18 @@ export default function AppNavigator() {
           name="HomeStack"
           component={MainStack}
           options={{
-            drawerItemStyle: { height: 0 }, // hides it from the drawer
-            title: "Rater Joe's",           // sets the correct banner title
+            drawerItemStyle: { height: 0 }, // hide from drawer
+            title: "Rater Joe's",
           }}
         />
         <Drawer.Screen name="Contact" component={ContactScreen} />
         <Drawer.Screen name="ChatBoard" component={ChatBoardScreen} />
         <Drawer.Screen name="Seasonal" component={SeasonalScreen} />
+        <Drawer.Screen
+          name="AllCategories"
+          component={AllCategoriesScreen}
+          options={{ title: "All Categories" }}
+        />
         {!user && (
           <Drawer.Screen
             name="Auth"
